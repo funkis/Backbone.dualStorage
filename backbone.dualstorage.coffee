@@ -217,8 +217,11 @@ localsync = (method, model, options) ->
       options.success response
     else
       options.error 'Record not found'
-
-  response
+    
+  
+  deferred = Backbone.$.Deferred()
+  deferred.resolve response
+  if response then deferred.promise() else false
 
 # If the value of the named property is a function then invoke it;
 # otherwise, return it.
