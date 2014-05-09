@@ -275,14 +275,23 @@ dualsync = (method, model, options) ->
     offline = response.status == 0 or response.status in offlineStatusCodes
     if offline
       options.dirty = true unless method is 'read'
-      success localsync(method, model, options)
+      promise = localsync(method, model, options)
+
+      promise.done (response) -> 
+        success response
+
+      promise
     else
       error response
 
   switch method
     when 'read'
       if localsync('hasDirtyOrDestroyed', model, options)
-        success localsync(method, model, options)
+        promise = localsync(method, model, options)
+        promise.done((response) ->
+          success response
+        )
+        promise
       else
         options.success = (resp, status, xhr) ->
           resp = parseRemoteResponse(model, resp)
